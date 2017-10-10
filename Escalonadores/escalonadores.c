@@ -47,12 +47,12 @@ struct process* get_process(process* queue, int id){
   process* result = NULL;
   if(queue != NULL){
     do{
-      if((*queue).id == id){
+      if(queue->id == id){
         result = queue;
         break;
       }
       else{
-        queue = (*queue).next;
+        queue = queue->next;
       }
     }while(queue != first);
   }
@@ -63,14 +63,14 @@ struct process* get_process(process* queue, int id){
   int pri_estatica){
 
    struct process* new_process = (process*) malloc(sizeof(process));
-   (*new_process).id = id;
-   (*new_process).date_criacao = date_criacao;
-   (*new_process).duracao = duracao;
-   (*new_process).pri_dinamica = 0;
-   (*new_process).pri_estatica = pri_estatica;
-   (*new_process).tempo_executando = 0;
-   (*new_process).tempo_quantum = 0;
-   (*new_process).estado_atual = NEW;
+   new_process->id = id;
+   new_process->date_criacao = date_criacao;
+   new_process->duracao = duracao;
+   new_process->pri_dinamica = 0;
+   new_process->pri_estatica = pri_estatica;
+   new_process->tempo_executando = 0;
+   new_process->tempo_quantum = 0;
+   new_process->estado_atual = NEW;
  }
 
 int init(){
@@ -86,7 +86,8 @@ int init(){
 }
 
 void print_header(int n){
-  printf("tempo   ");
+  printf("\nLegenda:\n\t '  ' não foi criado\n\t  --  fila de prontos\n\t  ##  executando\n\n");
+  printf(" tempo  ");
   for (int i = 0; i < n; i++) {
     printf(" P%d ", i);
   }
@@ -110,7 +111,7 @@ void print_body(int t, int n){
        printf("  --");
      }
 
-     if(queue_executando != NULL && (*queue_executando).id == i) //processo executando
+     if(queue_executando != NULL && queue_executando->id == i) //processo executando
      {
        printf("  ##");
      }
@@ -127,9 +128,9 @@ void print_body(int t, int n){
 void fcfs(int n){
   while(current_time < T_MAX){
     if(queue_executando != NULL){
-      if((*queue_executando).duracao == (*queue_executando).tempo_executando){
-        (*queue_executando).estado_atual = COMPLETED;
-        (*queue_executando).data_conclusao = current_time;
+      if(queue_executando->duracao == queue_executando->tempo_executando){
+        queue_executando->estado_atual = COMPLETED;
+        queue_executando->data_conclusao = current_time;
         queue_append((queue_t**)&queue_finalizados, (queue_t*)queue_executando);
         queue_executando = NULL;
       }
@@ -140,14 +141,14 @@ void fcfs(int n){
       process *aux = queue_novos;
       int count = queue_size((queue_t*)queue_novos);
       for (int i = 0; i < count; i++) {
-        if((*aux).date_criacao == current_time){
+        if(aux->date_criacao == current_time){
           queue_remove((queue_t**)&queue_novos, (queue_t*)aux);
           queue_append((queue_t**)&queue_prontos, (queue_t*)aux);
-          (*aux).estado_atual = READY;
+          aux->estado_atual = READY;
           aux = queue_novos;
         }
         else{
-          aux = (*aux).next;
+          aux = aux->next;
         }
       }
 
@@ -157,13 +158,13 @@ void fcfs(int n){
         if(queue_size((queue_t*)queue_prontos) > 0){
           process *p = (process *)queue_remove((queue_t**)&queue_prontos, (queue_t*)queue_prontos);
           queue_executando = p;
-          (*queue_executando).estado_atual = RUNNING;
-          (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+          queue_executando->estado_atual = RUNNING;
+          queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
         }
       }
       else
       {
-        (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+        queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
       }
       print_body(current_time, n);
     }
@@ -175,9 +176,9 @@ void sjf(int n){
 
  while(current_time < T_MAX){
    if(queue_executando != NULL){
-     if((*queue_executando).duracao == (*queue_executando).tempo_executando){
-       (*queue_executando).estado_atual = COMPLETED;
-       (*queue_executando).data_conclusao = current_time;
+     if(queue_executando->duracao == queue_executando->tempo_executando){
+       queue_executando->estado_atual = COMPLETED;
+       queue_executando->data_conclusao = current_time;
        queue_append((queue_t**)&queue_finalizados, (queue_t*)queue_executando);
        queue_executando = NULL;
      }
@@ -188,14 +189,14 @@ void sjf(int n){
      process *aux = queue_novos;
      int count = queue_size((queue_t*)queue_novos);
      for (int i = 0; i < count; i++) {
-       if((*aux).date_criacao == current_time){
+       if(aux->date_criacao == current_time){
          queue_remove((queue_t**)&queue_novos, (queue_t*)aux);
          queue_append((queue_t**)&queue_prontos, (queue_t*)aux);
-         (*aux).estado_atual = READY;
+         aux->estado_atual = READY;
          aux = queue_novos;
        }
        else{
-         aux = (*aux).next;
+         aux = aux->next;
        }
      }
 
@@ -215,13 +216,13 @@ void sjf(int n){
          }
          process *p = (process *)queue_remove((queue_t**)&queue_prontos, (queue_t*)aux);
          queue_executando = p;
-         (*queue_executando).estado_atual = RUNNING;
-         (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+         queue_executando->estado_atual = RUNNING;
+         queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
        }
      }
      else
      {
-       (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+       queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
      }
      print_body(current_time, n);
    }
@@ -233,9 +234,9 @@ void pri_sem_preemp(int n){
 
   while(current_time < T_MAX){
    if(queue_executando != NULL){
-     if((*queue_executando).duracao == (*queue_executando).tempo_executando){
-       (*queue_executando).estado_atual = COMPLETED;
-       (*queue_executando).data_conclusao = current_time;
+     if(queue_executando->duracao == queue_executando->tempo_executando){
+       queue_executando->estado_atual = COMPLETED;
+       queue_executando->data_conclusao = current_time;
        queue_append((queue_t**)&queue_finalizados, (queue_t*)queue_executando);
        queue_executando = NULL;
      }
@@ -246,14 +247,14 @@ void pri_sem_preemp(int n){
      process *aux = queue_novos;
      int count = queue_size((queue_t*)queue_novos);
      for (int i = 0; i < count; i++) {
-       if((*aux).date_criacao == current_time){
+       if(aux->date_criacao == current_time){
          queue_remove((queue_t**)&queue_novos, (queue_t*)aux);
          queue_append((queue_t**)&queue_prontos, (queue_t*)aux);
-         (*aux).estado_atual = READY;
+         aux->estado_atual = READY;
          aux = queue_novos;
        }
        else{
-         aux = (*aux).next;
+         aux = aux->next;
        }
      }
 
@@ -274,13 +275,13 @@ void pri_sem_preemp(int n){
          }
          process *p = (process *)queue_remove((queue_t**)&queue_prontos, (queue_t*)aux);
          queue_executando = p;
-         (*queue_executando).estado_atual = RUNNING;
-         (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+         queue_executando->estado_atual = RUNNING;
+         queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
        }
      }
      else
      {
-       (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+       queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
      }
      print_body(current_time, n);
    }
@@ -293,9 +294,9 @@ void pri_com_preem(int n){
 
   while(current_time < T_MAX){
    if(queue_executando != NULL){
-     if((*queue_executando).duracao == (*queue_executando).tempo_executando){
-       (*queue_executando).estado_atual = COMPLETED;
-       (*queue_executando).data_conclusao = current_time;
+     if(queue_executando->duracao == queue_executando->tempo_executando){
+       queue_executando->estado_atual = COMPLETED;
+       queue_executando->data_conclusao = current_time;
        queue_append((queue_t**)&queue_finalizados, (queue_t*)queue_executando);
        queue_executando = NULL;
      }else{
@@ -310,14 +311,14 @@ void pri_com_preem(int n){
      process *aux = queue_novos;
      int count = queue_size((queue_t*)queue_novos);
      for (int i = 0; i < count; i++) {
-       if((*aux).date_criacao == current_time){
+       if(aux->date_criacao == current_time){
          queue_remove((queue_t**)&queue_novos, (queue_t*)aux);
          queue_append((queue_t**)&queue_prontos, (queue_t*)aux);
-         (*aux).estado_atual = READY;
+         aux->estado_atual = READY;
          aux = queue_novos;
        }
        else{
-         aux = (*aux).next;
+         aux = aux->next;
        }
      }
 
@@ -338,13 +339,13 @@ void pri_com_preem(int n){
          }
          process *p = (process *)queue_remove((queue_t**)&queue_prontos, (queue_t*)aux);
          queue_executando = p;
-         (*queue_executando).estado_atual = RUNNING;
-         (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+         queue_executando->estado_atual = RUNNING;
+         queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
        }
      }
      else
      {
-       (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+       queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
      }
      print_body(current_time, n);
    }
@@ -357,9 +358,9 @@ void rr_quantum2_sem_prio(int n){
 
   while(current_time < T_MAX){
    if(queue_executando != NULL){
-     if((*queue_executando).duracao == (*queue_executando).tempo_executando){
-       (*queue_executando).estado_atual = COMPLETED;
-       (*queue_executando).data_conclusao = current_time;
+     if(queue_executando->duracao == queue_executando->tempo_executando){
+       queue_executando->estado_atual = COMPLETED;
+       queue_executando->data_conclusao = current_time;
        queue_append((queue_t**)&queue_finalizados, (queue_t*)queue_executando);
        queue_executando = NULL;
      }else{
@@ -377,14 +378,14 @@ void rr_quantum2_sem_prio(int n){
      process *aux = queue_novos;
      int count = queue_size((queue_t*)queue_novos);
      for (int i = 0; i < count; i++) {
-       if((*aux).date_criacao == current_time){
+       if(aux->date_criacao == current_time){
          queue_remove((queue_t**)&queue_novos, (queue_t*)aux);
          queue_append((queue_t**)&queue_prontos, (queue_t*)aux);
-         (*aux).estado_atual = READY;
+         aux->estado_atual = READY;
          aux = queue_novos;
        }
        else{
-         aux = (*aux).next;
+         aux = aux->next;
        }
      }
 
@@ -394,13 +395,13 @@ void rr_quantum2_sem_prio(int n){
 
          queue_executando = (process*) queue_remove((queue_t **) &queue_prontos, (queue_t *) queue_prontos);
          queue_executando->tempo_quantum++;
-         (*queue_executando).estado_atual = RUNNING;
-         (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+         queue_executando->estado_atual = RUNNING;
+         queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
        }
      }
      else
      {
-       (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+       queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
        queue_executando->tempo_quantum++;
      }
      print_body(current_time, n);
@@ -413,9 +414,9 @@ void rr_quantum2_sem_prio(int n){
 void rr_quantum2_env(int n ){
   while(current_time < T_MAX){
    if(queue_executando != NULL){
-     if((*queue_executando).duracao == (*queue_executando).tempo_executando){
-       (*queue_executando).estado_atual = COMPLETED;
-       (*queue_executando).data_conclusao = current_time;
+     if(queue_executando->duracao == queue_executando->tempo_executando){
+       queue_executando->estado_atual = COMPLETED;
+       queue_executando->data_conclusao = current_time;
        queue_append((queue_t**)&queue_finalizados, (queue_t*)queue_executando);
        queue_executando = NULL;
      }else{
@@ -433,14 +434,14 @@ void rr_quantum2_env(int n ){
      process *aux = queue_novos;
      int count = queue_size((queue_t*)queue_novos);
      for (int i = 0; i < count; i++) {
-       if((*aux).date_criacao == current_time){
+       if(aux->date_criacao == current_time){
          queue_remove((queue_t**)&queue_novos, (queue_t*)aux);
          queue_append((queue_t**)&queue_prontos, (queue_t*)aux);
-         (*aux).estado_atual = READY;
+         aux->estado_atual = READY;
          aux = queue_novos;
        }
        else{
-         aux = (*aux).next;
+         aux = aux->next;
        }
      }
 
@@ -464,13 +465,13 @@ void rr_quantum2_env(int n ){
          queue_executando = p;
 
          queue_executando->tempo_quantum++;
-         (*queue_executando).estado_atual = RUNNING;
-         (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+         queue_executando->estado_atual = RUNNING;
+         queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
        }
      }
      else
      {
-       (*queue_executando).tempo_executando = (*queue_executando).tempo_executando + 1;
+       queue_executando->tempo_executando = queue_executando->tempo_executando + 1;
        queue_executando->tempo_quantum++;
      }
      print_body(current_time, n);

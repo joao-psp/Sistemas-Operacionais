@@ -488,9 +488,28 @@ void rr_quantum2_env(int n ){
 }
 
 int main(int argc, char const *argv[]) {
-  int n;
+  int n,opc;
+  printf("\nEntre com a opção de Escalonadores: \n");
+  printf("\n\t1- FCFS\n\t2- SJF\n\t3- Por Prioridade Sem Preempcao\n\t4- Por Prioridade com Preempcao\n\t5-Round Robin q=2\n\t6- Round Robin com Envelhecimento\n");
+  scanf("%d",&opc);
+
   n = init();
   print_header(n);
-  rr_quantum2_env(n);
+
+  if(opc==1){
+    fcfs(n);
+  }else if(opc==2){
+    sjf(n);
+  }else if(opc==3){
+    pri_sem_preemp(n);
+  }else if(opc==4){
+    pri_com_preem(n);
+  }else if(opc==5){
+    rr_quantum2_sem_prio(n);
+  }else if(opc==6){
+    rr_quantum2_env(n);
+  }else{
+    printf("Opção Inválida\n");
+  }
   return 0;
 }
